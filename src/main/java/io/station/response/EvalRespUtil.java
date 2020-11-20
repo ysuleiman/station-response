@@ -27,8 +27,8 @@ import io.station.model.ResponseStage;
 import io.station.model.StageGain;
 import io.station.model.Symmetry;
 import lombok.extern.slf4j.Slf4j;
-import io.station.model.Coefficients.Denominator;
-import io.station.model.Coefficients.Numerator;
+import io.station.model.Denominator;
+import io.station.model.Numerator;
 import io.station.model.Polynomial.Coefficient;
 import io.station.response.util.FrequencySet;
 import tech.units.indriya.quantity.Quantities;
@@ -52,8 +52,8 @@ public class EvalRespUtil {
 		if (samplingInterval == null) {
 			throw new InvalidResponseException("Invalid decimation object");
 		}
-		List<Denominator> denominators = coefficients.getDenominator();
-		List<Numerator> numerators = coefficients.getNumerator();
+		List<Denominator> denominators = coefficients.getDenominators();
+		List<Numerator> numerators = coefficients.getNumerators();
 		if (denominators == null || denominators.isEmpty()) { // no denominators, process as FIR filter
 			if (numerators != null && !numerators.isEmpty()) { // more than zero numerators
 																// determine if asymmetrical or symmetrical
@@ -75,7 +75,7 @@ public class EvalRespUtil {
 							.toSystemUnit();
 
 					Number number = quantity.getValue();
-					double deltaVal = number.doubleValue() - ((((double) (coefficients.getNumerator().size() - 1)) / 2)
+					double deltaVal = number.doubleValue() - ((((double) (coefficients.getNumerators().size() - 1)) / 2)
 							* samplingInterval.getValue().doubleValue());
 					ofNum = ofNum.multiply(new Complex(Math.cos(wVal * deltaVal), Math.sin(wVal * deltaVal)));
 				}
@@ -102,8 +102,8 @@ public class EvalRespUtil {
 		if (samplingInterval == null) {
 			throw new InvalidResponseException("Invalid decimation object");
 		}
-		List<Denominator> denominators = coefficients.getDenominator();
-		List<Numerator> numerators = coefficients.getNumerator();
+		List<Denominator> denominators = coefficients.getDenominators();
+		List<Numerator> numerators = coefficients.getNumerators();
 
 		// No denominators, process as FIR filter
 		if (denominators == null || denominators.isEmpty()) {
@@ -329,11 +329,11 @@ public class EvalRespUtil {
 	 */
 	public static Complex iirTrans(Coefficients filterObj, double normFact, double sIntervalTime, double wVal) {
 		// get number of numerators:
-		final int numNumers = (filterObj != null && filterObj.getNumerator() != null) ? filterObj.getNumerator().size()
+		final int numNumers = (filterObj != null && filterObj.getNumerators() != null) ? filterObj.getNumerators().size()
 				: 0;
 		// get number of denominators:
-		final int numDenoms = (filterObj != null && filterObj.getDenominator() != null)
-				? filterObj.getDenominator().size()
+		final int numDenoms = (filterObj != null && filterObj.getDenominators() != null)
+				? filterObj.getDenominators().size()
 				: 0;
 		// calculate radial freq. time sample interval:
 		final double wsint = wVal * sIntervalTime;
@@ -342,11 +342,11 @@ public class EvalRespUtil {
 		int i;
 		// process numerator:
 		if (numNumers > 0) {
-			xre = filterObj.getNumerator().get(0).getValue();
+			xre = filterObj.getNumerators().get(0).getValue();
 			xim = 0.0;
 			for (i = 1; i < numNumers; ++i) {
-				xre += filterObj.getNumerator().get(i).getValue() * Math.cos(-(i * wsint));
-				xim += filterObj.getNumerator().get(i).getValue() * Math.sin(-(i * wsint));
+				xre += filterObj.getNumerators().get(i).getValue() * Math.cos(-(i * wsint));
+				xim += filterObj.getNumerators().get(i).getValue() * Math.sin(-(i * wsint));
 			}
 			amp = Math.sqrt(xre * xre + xim * xim);
 			phase = Math.atan2(xim, xre);
@@ -354,11 +354,11 @@ public class EvalRespUtil {
 			amp = phase = 0.0;
 		// process denominator:
 		if (numDenoms > 0) {
-			xre = filterObj.getDenominator().get(0).getValue();
+			xre = filterObj.getDenominators().get(0).getValue();
 			xim = 0.0;
 			for (i = 1; i < numDenoms; ++i) {
-				xre += filterObj.getDenominator().get(i).getValue() * Math.cos(-(i * wsint));
-				xim += filterObj.getDenominator().get(i).getValue() * Math.sin(-(i * wsint));
+				xre += filterObj.getDenominators().get(i).getValue() * Math.cos(-(i * wsint));
+				xim += filterObj.getDenominators().get(i).getValue() * Math.sin(-(i * wsint));
 			}
 			amp /= Math.sqrt(xre * xre + xim * xim);
 			phase -= Math.atan2(xim, xre);
@@ -386,7 +386,7 @@ public class EvalRespUtil {
 	public static Complex firTrans(Coefficients filterObj, double normFact, double sIntervalTime, double wVal,
 			Symmetry firTypeVal) {
 
-		final int numCoeffs = (filterObj != null && filterObj.getNumerator() != null) ? filterObj.getNumerator().size()
+		final int numCoeffs = (filterObj != null && filterObj.getNumerators() != null) ? filterObj.getNumerators().size()
 				: 0;
 		// calculate radial freq. time sample interval:
 		final double wsint = wVal * sIntervalTime;
@@ -399,34 +399,34 @@ public class EvalRespUtil {
 			double rVal = 0.0;
 			for (i = 0; i < (numNumerators - 1); ++i) {
 				factVal = numNumerators - (i + 1);
-				rVal += filterObj.getNumerator().get(i).getValue() * Math.cos(wsint * factVal);
+				rVal += filterObj.getNumerators().get(i).getValue() * Math.cos(wsint * factVal);
 			}
-			return new Complex((filterObj.getNumerator().get(i).getValue() + (2.0 * rVal)) * normFact, 0.0);
+			return new Complex((filterObj.getNumerators().get(i).getValue() + (2.0 * rVal)) * normFact, 0.0);
 		} else if (firTypeVal == Symmetry.EVEN) { // FIR type is symmetrical 2
 			final int numNumerators = numCoeffs / 2;
 			int i, factVal;
 			double rVal = 0.0;
 			for (i = 0; i < numNumerators; ++i) {
 				factVal = numNumerators - (i + 1);
-				rVal += filterObj.getNumerator().get(i).getValue() * Math.cos(wsint * ((double) factVal + 0.5));
+				rVal += filterObj.getNumerators().get(i).getValue() * Math.cos(wsint * ((double) factVal + 0.5));
 			}
 			return new Complex(2.0 * rVal * normFact, 0.0);
 		} else { // FIR type is asymmetrical
 					// check if all coefficients have the same value:
-			double val = filterObj.getNumerator().get(0).getValue();
+			double val = filterObj.getNumerators().get(0).getValue();
 			int i = 0;
 			do {
 				if (++i >= numCoeffs) { // all coefficients checked
 					return new Complex(((wsint == 0.0) ? 1.0
 							: ((Math.sin(wsint / 2.0 * numCoeffs) / Math.sin(wsint / 2.0)) * val)), 0.0);
 				}
-			} while (filterObj.getNumerator().get(i).getValue() == val);
+			} while (filterObj.getNumerators().get(i).getValue() == val);
 			// process coefficients (not all same value):
 			double rVal = 0.0, iVal = 0.0;
 			for (i = 0; i < numCoeffs; ++i) {
 				val = wsint * i;
-				rVal += filterObj.getNumerator().get(i).getValue() * Math.cos(val);
-				iVal += filterObj.getNumerator().get(i).getValue() * -Math.sin(val);
+				rVal += filterObj.getNumerators().get(i).getValue() * Math.cos(val);
+				iVal += filterObj.getNumerators().get(i).getValue() * -Math.sin(val);
 			}
 			final double mod = Math.sqrt(rVal * rVal + iVal * iVal);
 //      double pha = Math.atan2(iVal,rVal);
@@ -596,17 +596,17 @@ public class EvalRespUtil {
 	 */
 	public static void checkFixFirFreq0Norm(Coefficients filterObj) {
 		// get number of coefficients (numerators):
-		final int numCoeffs = (filterObj != null && filterObj.getNumerator() != null) ? filterObj.getNumerator().size()
+		final int numCoeffs = (filterObj != null && filterObj.getNumerators() != null) ? filterObj.getNumerators().size()
 				: 0;
 		if (numCoeffs > 0) { // more than zero coefficients (numerators)
 			double sumVal = 0.0; // calculate sum of coefficients:
 			for (int i = 0; i < numCoeffs; ++i)
-				sumVal += filterObj.getNumerator().get(i).getValue();
+				sumVal += filterObj.getNumerators().get(i).getValue();
 			if (sumVal < (1.0 - FIR_NORM_TOL) || sumVal > (1.0 + FIR_NORM_TOL)) { // sum of coefficients is not 1.0
 																					// divide by sum to make sum of
 																					// coefficients be 1.0:
 				for (int i = 0; i < numCoeffs; ++i) {
-					filterObj.getNumerator().get(i).divide(sumVal);
+					filterObj.getNumerators().get(i).divide(sumVal);
 				}
 				// set info message:
 				// setInfoMessage(
@@ -633,7 +633,7 @@ public class EvalRespUtil {
 		if (coefficients == null) {
 
 		}
-		List<Numerator> numerators = coefficients.getNumerator();
+		List<Numerator> numerators = coefficients.getNumerators();
 		if (numerators == null || numerators.size() < 2) {
 			return Symmetry.NONE;
 		}

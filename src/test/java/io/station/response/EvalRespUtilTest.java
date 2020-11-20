@@ -12,15 +12,14 @@ import org.junit.jupiter.api.Test;
 
 import io.station.model.CfTransferFunctionType;
 import io.station.model.Coefficients;
-import io.station.model.Coefficients.Numerator;
 import io.station.model.FDSNStationXML;
 import io.station.model.FloatNoUnitType;
+import io.station.model.Numerator;
 import io.station.model.PoleZero;
 import io.station.model.PolesZeros;
 import io.station.model.PzTransferFunctionType;
 import io.station.model.Symmetry;
 import io.station.uom.StationUnits;
-
 
 public class EvalRespUtilTest {
 
@@ -33,6 +32,7 @@ public class EvalRespUtilTest {
 		assertEquals(0.968740976046097, complex.getReal(), 0.0000001);
 		assertEquals(0.2471855389775642, complex.getImaginary(), 0.0000001);
 	}
+
 	@Test
 	public void analogTransFromResp() {
 		PolesZeros polesZeros = createPolesZerosFromResp();
@@ -42,8 +42,7 @@ public class EvalRespUtilTest {
 		assertEquals(-2.876508163900839E-4, complex.getReal(), 0.0000001);
 		assertEquals(5.088368482030121E-6, complex.getImaginary(), 0.0000001);
 	}
-	
-	
+
 	@Test
 	public void iirTrans() {
 		Complex complex = EvalRespUtil.iirTrans(createCoefficients(), +5.51178E-20, 0.025, 0.12566370614359174);
@@ -144,11 +143,11 @@ public class EvalRespUtilTest {
 	}
 
 	PoleZero createPoleZero(int sequence, double real, double imaginary) {
-		return new PoleZero(sequence,createFloatNoUnitType(real),createFloatNoUnitType(imaginary));
+		return new PoleZero(sequence, createFloatNoUnitType(real), createFloatNoUnitType(imaginary));
 	}
 
 	FloatNoUnitType createFloatNoUnitType(double value) {
-		return new FloatNoUnitType(value);
+		return FloatNoUnitType.valueOf(value);
 	}
 
 	Coefficients createCoefficients() {
@@ -157,45 +156,45 @@ public class EvalRespUtilTest {
 		coefficients.setCfTransferFunctionType(CfTransferFunctionType.DIGITAL);
 		coefficients.setInputUnits(StationUnits.COUNT);
 		coefficients.setOutputUnits(StationUnits.COUNT);
-		coefficients.getNumerator().add(Numerator.valueOf(+4.18952E-13));
-		coefficients.getNumerator().add(Numerator.valueOf(+3.30318E-04));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.02921E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-3.14123E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(+2.05709E-04));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.52521E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-6.23193E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.04801E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.31202E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.07821E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.44455E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.58729E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+3.95074E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-6.51036E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+8.53716E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-8.91913E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+5.00619E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+8.37233E-01));
-		coefficients.getNumerator().add(Numerator.valueOf(+2.66723E-01));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.66693E-01));
-		coefficients.getNumerator().add(Numerator.valueOf(+9.52840E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-5.09218E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.61458E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+7.06362E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.83877E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+1.99414E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.54895E-02));
-		coefficients.getNumerator().add(Numerator.valueOf(+8.52735E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-2.55789E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.81103E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(+2.42649E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(-3.75769E-03));
-		coefficients.getNumerator().add(Numerator.valueOf(+4.67293E-04));
-		coefficients.getNumerator().add(Numerator.valueOf(+6.33072E-04));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.56874E-06));
-		coefficients.getNumerator().add(Numerator.valueOf(-1.25480E-05));
-		coefficients.getNumerator().add(Numerator.valueOf(+3.21041E-07));
-		coefficients.getNumerator().add(Numerator.valueOf(-2.63324E-08));
-		coefficients.getNumerator().add(Numerator.valueOf(-5.09997E-08));
+		coefficients.getNumerators().add(Numerator.valueOf(+4.18952E-13));
+		coefficients.getNumerators().add(Numerator.valueOf(+3.30318E-04));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.02921E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-3.14123E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(+2.05709E-04));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.52521E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-6.23193E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.04801E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.31202E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.07821E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.44455E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.58729E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+3.95074E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-6.51036E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+8.53716E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-8.91913E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+5.00619E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+8.37233E-01));
+		coefficients.getNumerators().add(Numerator.valueOf(+2.66723E-01));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.66693E-01));
+		coefficients.getNumerators().add(Numerator.valueOf(+9.52840E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-5.09218E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.61458E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+7.06362E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.83877E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+1.99414E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.54895E-02));
+		coefficients.getNumerators().add(Numerator.valueOf(+8.52735E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-2.55789E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.81103E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(+2.42649E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(-3.75769E-03));
+		coefficients.getNumerators().add(Numerator.valueOf(+4.67293E-04));
+		coefficients.getNumerators().add(Numerator.valueOf(+6.33072E-04));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.56874E-06));
+		coefficients.getNumerators().add(Numerator.valueOf(-1.25480E-05));
+		coefficients.getNumerators().add(Numerator.valueOf(+3.21041E-07));
+		coefficients.getNumerators().add(Numerator.valueOf(-2.63324E-08));
+		coefficients.getNumerators().add(Numerator.valueOf(-5.09997E-08));
 		return coefficients;
 	}
 
